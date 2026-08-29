@@ -1,0 +1,1745 @@
+# ============================================================
+#  ErrorSMP Mod Detector configuration
+# ============================================================
+
+# Tell staff (moddetector.alerts) in chat whenever anyone is detected, passive or sign-probe.
+alert-staff: true
+detection-log:
+  enabled: false
+  file: "detections.jsonl"
+
+# Channel/brand passive detection (see the mods: catalog below). blacklist = everything
+# loaded counts except blocked-mods; whitelist = only ids listed in blocked-mods count.
+mode: blacklist
+blocked-mods: []
+
+# Add your own channel/brand mods here without editing the mods: catalog below, e.g.:
+# custom-mods:
+#   my-mod:
+#     name: "My Mod"
+#     punish: true
+#     channels: ["mymod:*"]
+#     brand: ["(?i)^mylauncher"]
+custom-mods: {}
+
+# ============================================================
+#  Sign-probe hack-client detection (needs PacketEvents)
+# ============================================================
+hack-checks:
+  # If false, detections are only logged/alerted - nothing ever gets kicked.
+  kick: true
+  # <punishable> = only the mods that actually triggered this (excludes benign
+  # punish: false detections riding along, e.g. a minimap seen on the same player).
+  # <detected> = everything found, <hacks> = sign-probe hits only, <mods> = channel/brand hits only.
+  kick-message: "&cUnauthorized modifications detected: <punishable>"
+
+  # Fallback console commands for any punish: true mod that has no punishments: list
+  # of its own (same %player%/%punishable%/%detected%/%mods%/%hacks% placeholders as
+  # a per-mod punishments: entry). Only used when that mod's own entry has none - the
+  # kick-message above is still the final fallback if this is also empty.
+  default-punishments: []
+
+  on-join:
+    enabled: true
+    delay-ticks: 20
+    only-first-join: false
+
+  # Verbose logging: every probe key sent and every raw line the client sent back. Leave off
+  # unless you're actively troubleshooting why something isn't (or shouldn't be) detected.
+  sign-probe-debug: false
+
+# ============================================================
+#  Custom sign-probe hack definitions, on top of the TRANSLATE/KEYBIND/METEOR_VARIANT
+#  signals already declared per-mod in the mods: catalog below. Only needed for a probe
+#  key you want to add without editing that mod's own entry. See ADDING-MODS.md.
+#
+#  Schema: one entry per (mod, key) pair.
+#    <id>:
+#      display-name: "Display Name"
+#      key: "some.translation.or.keybind.key"
+#      mode: TRANSLATE | KEYBIND | METEOR
+#      punish: true
+# ============================================================
+hacks: {}
+
+# ============================================================
+#  Mod database: channel/brand passive detection + sign-probe signals for every known
+#  mod. blacklist mode (default above) tracks everything here except blocked-mods.
+# ============================================================
+mods:
+
+# CHEAT category mods.
+#
+# Category colour: red. These are ghost clients and outright cheats.
+# Per-mod punishments include %mods% so the kick message lists every
+# detected mod. Mods without their own punishments: list use
+# default-punishments from config.yml.
+
+  meteor:
+    display-name: "Meteor Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "text.meteor-client.title"
+          - "text.meteor-client.gui.title"
+          - "key.meteor-client.open-gui"
+          - "key.meteor-client.open-commands"
+          - "modules.meteor-client.speed"
+      - source: KEYBIND
+        keys:
+          - "meteor.key.open-commands"
+      - source: METEOR_VARIANT
+        keys: ["key.meteor-client.open-gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  meteor-plus:
+    display-name: "Meteor Plus"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["item.meteorplus.logo", "item.meteorplus.logo_mods"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  meteor-additions:
+    display-name: "Meteor Additions"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["meteor-additions.error", "meteor-additions.presets"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  meteorist:
+    display-name: "Meteorist"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["modmenu.descriptionTranslation.meteorist"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  wurst:
+    display-name: "Wurst Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "gui.wurst.title.mainmenu"
+          - "key.wurst.windchargekey"
+      - source: KEYBIND
+        keys:
+          - "key.wurst.zoom"
+      - source: CHANNEL
+        matches: ["^wurst:", "^wurstclient:"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  impact:
+    display-name: "Impact Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["impact.gui.click.title"]
+      - source: BRAND
+        matches: ["(?i)^impact"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  liquidbounce:
+    display-name: "LiquidBounce"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "liquidbounce.gui.title"
+          - "liquidbounce.tab.main"
+          - "liquidbounce.generic.enabled"
+          - "liquidbounce.command.tps.description"
+      - source: BRAND
+        matches: ["(?i)liquidbounce"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  sigma:
+    display-name: "Sigma Client"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)^sigma"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  vape:
+    display-name: "Vape"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)^vape"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  doomsday:
+    display-name: "Doomsday Client"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)doomsday"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  rusherhack:
+    display-name: "RusherHack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["rusherhack.gui.title"]
+      - source: BRAND
+        matches: ["(?i)rusher"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  aristois:
+    display-name: "Aristois"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)aristois"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  inertia:
+    display-name: "Inertia Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["inertia.hud.title"]
+      - source: BRAND
+        matches: ["(?i)^inertia"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  salhack:
+    display-name: "SalHack"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)salhack"]
+    punish: true
+
+  konas:
+    display-name: "Konas Client"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)^konas"]
+    punish: true
+
+  rise:
+    display-name: "Rise Client"
+    category: CHEAT
+    signals:
+      - source: BRAND
+        matches: ["(?i)^rise(?:client)?$"]
+    punish: true
+
+  ethanol:
+    display-name: "Ethanol Backdoor"
+    category: CHEAT
+    signals:
+      - source: KEYBIND
+        keys: ["Ethanol"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  jex:
+    display-name: "Jex Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["jex.name"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  thunderhack:
+    display-name: "ThunderHack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["descriptions.client.clickgui"]
+      - source: BRAND
+        matches: ["(?i)thunderhack"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  paradise-client:
+    display-name: "ParadiseClient"
+    category: CHEAT
+    signals:
+      - source: KEYBIND
+        keys: ["Open paradise command"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  xynis:
+    display-name: "Xynis"
+    category: CHEAT
+    signals:
+      - source: KEYBIND
+        keys: ["key.xynis.gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  lumina:
+    display-name: "Lumina Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.lumina.open_click_gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  hypnotic:
+    display-name: "Hypnotic Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.hypnotic-client.open-click-gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  glazed:
+    display-name: "Glazed Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.glazed.activate-key"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  wave-client:
+    display-name: "Wave Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.wave-client.wave-client"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  cheatutils:
+    display-name: "CheatUtils"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "category.zergatul.cheatutils"
+          - "key.category.cheatutils.common"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  clientspoof:
+    display-name: "Client Spoofer"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["clientspoofer.options.title"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  custom-client-brand:
+    display-name: "Custom Client Brand"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "text.autoconfig.customclientbrand.title"
+          - "text.autoconfig.customclientbrand.option.customBrand"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  rebrand:
+    display-name: "Rebrand"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.rebrand.title"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  mini-hacks:
+    display-name: "Mini Hacks"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["gui.hacksfab.hack.button_one_shot"]
+    punish: true
+
+  hcscr:
+    display-name: "HcScr"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.hcscr.root"]
+    punish: true
+
+  madxray:
+    display-name: "MadXray"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.categories.madxray"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  kenzo-hack:
+    display-name: "Kenzo Hack Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "effect.hack_client_mod.landinghack"
+          - "key.hack_client_mod.myhackkey"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  xray:
+    display-name: "X-Ray"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "xray.config.toggle"
+          - "xray.config.open"
+          - "xray.single.cancel"
+          - "xray.gui.add_blocks"
+      - source: KEYBIND
+        keys:
+          - "key.raax.toggle_xray"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  x13-xray:
+    display-name: "X13 X-Ray"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["x13.mod.xray"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  speedhack:
+    display-name: "SpeedHack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.speedhack.decrease"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  wallhack:
+    display-name: "WallHack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.categories.wallhack"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  pingbypass:
+    display-name: "PingBypass"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["pingbypass.key.open"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  teleporthack:
+    display-name: "TeleportHack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["tph.key.activate"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  autoclicker:
+    display-name: "AutoClicker"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "autoclicker-fabric.hud.holding"
+          - "key.autoclicker-rinf.toggleacf"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  autoattack:
+    display-name: "AutoAttack"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.autoattack.afkAttack"
+          - "key.category.minecraft.autoattack"
+          - "text.autoconfig.simple_auto_attack.title"
+      - source: KEYBIND
+        keys:
+          - "key.autoattack.auto_attack_toggle"
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  auto-shield-breaker:
+    display-name: "Auto Shield Breaker"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["mod.autoshieldbreaker.name"]
+      - source: KEYBIND
+        keys: ["key.shieldbreaker.open_gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  chest-esp:
+    display-name: "ChestESP"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.chestesp.toggle"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  chest-finder:
+    display-name: "Chest Finder"
+    category: CHEAT
+    signals:
+      - source: KEYBIND
+        keys: ["key.chestfinder.gui"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  player-esp:
+    display-name: "PlayerESP"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["category.playeresp.main"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  spawn-radar:
+    display-name: "Spawn Radar"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.spawn_radar.title"]
+    punish: true
+
+  omniscience:
+    display-name: "Omniscience (Invisibility Revealer)"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.omniscience"]
+    punish: true
+
+  hitrange:
+    display-name: "HitRange"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.hitrange.key"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  catlean:
+    display-name: "CatLean"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["gui.version.no", "gui.discord.no"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  fire-client:
+    display-name: "Fire Client"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.fireclient"]
+    punish: true
+
+  killaura:
+    display-name: "Killaura (generic)"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.killaura", "gui.killaura.cooldown"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  spoofing-translation:
+    display-name: "Spoofing Translation"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.antispoof.translate"]
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  exploit-preventer:
+    display-name: "ExploitPreventer"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "exploitpreventer.disclaimer.title"
+          - "exploitpreventer.disclaimer.content"
+    punish: true
+
+  crystal-core:
+    display-name: "Crystal Core"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.crystalcore.toggle"]
+    punish: true
+
+  cart-core:
+    display-name: "Cart Core"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.cartcore.crossbowcart"]
+    punish: true
+
+  combat-plus:
+    display-name: "Combat Plus"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["gamerule.category.combat-plus"]
+    punish: true
+
+  combatify:
+    display-name: "Combatify"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["text.config.combatify-general.option.autoAttackAllowed"]
+    punish: true
+
+  gavinsmod:
+    display-name: "GavinsMod"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["gavinsmod.mod.tracer.chest"]
+    punish: true
+
+  entity-outliner:
+    display-name: "Entity Outliner"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.entity-outliner.selector"]
+    punish: true
+
+  spear-core:
+    display-name: "Spear Core"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.spearcore.roll"]
+    punish: true
+
+  shield-status:
+    display-name: "Shield Status"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.walksy.key"]
+    punish: true
+
+  visible-shield-cd:
+    display-name: "Visible Shield Cooldown"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["config.visible_shield_cd.title"]
+    punish: true
+
+  bridging-mod:
+    display-name: "Bridging Mod"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.bridgingmod.category"]
+    punish: true
+
+  multi-key-bindings:
+    display-name: "Multi Key Bindings"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["multi.toggle.key.attack"]
+    punish: true
+
+  global-macros:
+    display-name: "Global Macros"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["text.globalmacros.title"]
+    punish: true
+
+  # Brand-string anomaly heuristics - unlike every other entry here these don't match a
+  # specific mod's known signature, they catch a contradiction in what the client itself
+  # reports, so they can flag mods this catalog has never heard of. Ported from the
+  # original ModDetector jar's built-in checks (see NOTICE.md).
+  vanilla-spoof:
+    display-name: "Spoofed Vanilla Brand"
+    category: CHEAT
+    signals:
+      - source: VANILLA_SPOOF
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+  geyser-spoof:
+    display-name: "Spoofed Geyser Brand"
+    category: CHEAT
+    signals:
+      - source: GEYSER_SPOOF
+    punish: true
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+# LAUNCHER category mods.
+#
+# Category colour: main blue. Alternative Minecraft clients / launchers.
+# These are not cheats but you may want to know who uses them (e.g. for
+# support routing or telemetry). Default is log + alert only.
+
+  lunar:
+    display-name: "Lunar Client"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^lunar"]
+    punish: false
+
+  badlion:
+    display-name: "Badlion Client"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^badlion", "^BLC"]
+    punish: false
+
+  feather:
+    display-name: "Feather Client"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^feather"]
+    punish: false
+
+  salwyrr:
+    display-name: "Salwyrr Client"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^salwyrr"]
+    punish: false
+
+  prismlauncher:
+    display-name: "Prism / PolyMC"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^prismlauncher", "(?i)^polymc"]
+    punish: false
+
+  geyser:
+    display-name: "Bedrock (Geyser)"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["^Geyser"]
+    punish: false
+
+  labymod:
+    display-name: "LabyMod"
+    category: LAUNCHER
+    signals:
+      - source: BRAND
+        matches: ["(?i)^labymod"]
+    punish: false
+
+# SUSPICIOUS category mods.
+#
+# Category colour: gold. Dual-use tools often paired with cheats but with
+# legitimate uses too. Default is log + alert only, no auto-kick.
+# Add punish: true per entry if you want to punish for a specific mod.
+
+  # Another brand-string anomaly heuristic (see the vanilla-spoof/geyser-spoof
+  # entries above) - a real client always reports something, so an empty or missing
+  # brand is itself suspicious rather than a specific mod's signature.
+  no-brand:
+    display-name: "Missing Client Brand"
+    category: SUSPICIOUS
+    signals:
+      - source: NO_BRAND
+    punish: false
+
+  baritone:
+    display-name: "Baritone"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["baritone.overlay.cancel", "baritone.setting.toggled"]
+    punish: false
+
+  bleachhack:
+    display-name: "BleachHack"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["bleachhack.title"]
+    punish: false
+
+  forgehax:
+    display-name: "ForgeHax"
+    category: SUSPICIOUS
+    signals:
+      - source: CHANNEL
+        matches: ["^forgehax:"]
+    punish: false
+
+  hyperium:
+    display-name: "Hyperium"
+    category: SUSPICIOUS
+    signals:
+      - source: BRAND
+        matches: ["(?i)hyperium"]
+    punish: false
+
+  mace-attack-assistance:
+    display-name: "Mace Attack Assistance"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.category.mace_attack_assistance"
+          - "config.mace_attack_assistance.title"
+    punish: false
+
+  seedcracker:
+    display-name: "SeedCracker"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "finder.outposts"
+          - "info.worldSeeds"
+          - "key.seedMap"
+          - "commands.nbc:crack.started"
+    punish: false
+
+  fullbright-gamma:
+    display-name: "Gamma Utils (Fullbright)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "effect.gammautils.dim"
+          - "key.gammautils.maxGamma"
+          - "fullbrightnesstoggle.key.togglebrightness"
+    punish: false
+
+  see-through-lava:
+    display-name: "See-Through-Lava"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.seethroughlava.title"]
+    punish: false
+
+  freecam:
+    display-name: "Freecam (Fabric)"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "freecam.config.title"
+          - "text.freecam.title"
+          - "msg.freecam.enable"
+      - source: KEYBIND
+        keys:
+          - "key.freecam.toggle"
+          - "key.freecam.controlPlayer.toggle"
+          - "key.freecam.tripod.reset"
+          - "key.freecam.config.open"
+      - source: CHANNEL
+        matches: ["^freecam(:|_)"]
+    punish: true
+
+  zergatul-freecam:
+    display-name: "Zergatul Freecam"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.zergatul.freecam.toggle"]
+    punish: true
+
+  fcam-fork:
+    display-name: "Freecam (fork)"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.fcam.freecam"]
+    punish: true
+
+  xaeros-freelook:
+    display-name: "Xaero's Freelook"
+    category: SUSPICIOUS
+    signals:
+      - source: CHANNEL
+        matches: ["^xaero(_|:)?freelook"]
+      - source: TRANSLATE
+        keys: ["xaero.freelook.toggle"]
+    punish: false
+
+  perspective:
+    display-name: "Perspective Mod"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.perspective.toggle", "perspective.enabled"]
+    punish: false
+
+  camerautils:
+    display-name: "Camera Utils"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.camerautils.zoom"
+          - "message.camerautils.zoom"
+          - "gui.camerautils.zoom.title"
+      - source: CHANNEL
+        matches: ["^cameramod:", "^camerautils:"]
+    punish: false
+
+  flymod:
+    display-name: "FlyMod"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.flymod.toggle"]
+    punish: false
+
+  stepup:
+    display-name: "StepUp"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.stepup.toggle"]
+    punish: false
+
+  crawl:
+    display-name: "Crawl (1-block sneak)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.crawl"]
+    punish: false
+
+  climbladdersfast:
+    display-name: "Climb Ladders Fast"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.climbladdersfast.toggle"]
+    punish: false
+
+  precise-block-placing:
+    display-name: "Precise Block Placing"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.preciseblockplacing.toggle_enabled"]
+    punish: false
+
+  faster-block-placement:
+    display-name: "Faster Block Placement"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.categories.fasterblockplacement"]
+    punish: false
+
+  pro-placer:
+    display-name: "Pro Placer"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.proplacer.fast_placement", "key.category.proplacer.main"]
+    punish: false
+
+  smart-block-placement:
+    display-name: "SmartBlockPlacement"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.smartblockplacement.switch_smart_placement"
+          - "text.smartblockplacement.enabled_smart_placement"
+    punish: false
+
+  accurate-block-placement:
+    display-name: "Accurate Block Placement"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "text.autoconfig.accurateblockplacement.title"
+          - "net.clayborn.accurateblockplacement.togglevanillaplacement"
+    punish: false
+
+  autoswitch:
+    display-name: "AutoSwitch"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.autoswitch.toggle"]
+    punish: false
+
+  autotools:
+    display-name: "AutoTools"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.autotools.get_tool", "key.p1x3lc0w.invutil.autoTool"]
+    punish: false
+
+  autofish:
+    display-name: "Autofish"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.autofish.open_gui"]
+    punish: false
+
+  autoeat:
+    display-name: "Auto Eat"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.autoeat.main"]
+    punish: false
+
+  auto-armor:
+    display-name: "Auto Armor"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.category.epitex.category_auto_armor"
+      - source: KEYBIND
+        keys:
+          - "key.epitex.toggle_auto_armor"
+    punish: true
+
+  auto-totem-light:
+    display-name: "AutoTotemLight"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.autototemlight.totem_swap", "category.auto-totem", "auto-totem.midnightconfig.title"]
+    punish: false
+
+  auto-elytra:
+    display-name: "Auto Elytra"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["title.autoelytra.config"]
+    punish: false
+
+  auto-mace-swap:
+    display-name: "Auto Mace Swap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.maceswap.elytra"
+          - "key.maceutils.swordswap"
+          - "category.bettermaceswap.general"
+    punish: false
+
+  auto-tool-swap:
+    display-name: "Auto Tool Swap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["toolswap.configuration.title"]
+    punish: false
+
+  no-delay:
+    display-name: "No Delay Mod"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.nodelaymod.toggle_ndo", "key.nodelaymod.category"]
+    punish: false
+
+  no-jump-delay:
+    display-name: "No Jump Delay"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.nojumpdelay.title", "com.kadalyst.nojumpdelay.toggleMod"]
+    punish: false
+
+  player-highlighter:
+    display-name: "Player Highlighter"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.playerhighlighter.toggle"]
+    punish: false
+
+  schematic-printer:
+    display-name: "Schematic Printer"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["schematic.key.toggle"]
+    punish: false
+
+  litematica:
+    display-name: "Litematica"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["litematica.gui.button.change_menu.to_main_menu"]
+    punish: false
+
+  malilib:
+    display-name: "MaLiLib (Litematica core)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["malilib.gui.title.debug"]
+    punish: false
+
+  tweakeroo:
+    display-name: "Tweakeroo"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "tweakeroo.message.toggled"
+          - "tweakeroo.message.value.on"
+          - "tweakeroo.gui.button.config_gui.tweaks"
+    punish: false
+
+  tweakermore:
+    display-name: "TweakerMore"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["tweakermore.hotkeys.category.main"]
+    punish: false
+
+  axiom:
+    display-name: "Axiom (WorldEdit client)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["axiom.keybind", "axiom.tool.melt"]
+    punish: false
+
+  world-downloader:
+    display-name: "WorldDownloader"
+    category: SUSPICIOUS
+    signals:
+      - source: KEYBIND
+        keys: ["key.worlddownloader.export"]
+      - source: CHANNEL
+        matches: ["^wdl:", "^WDL\\|"]
+    punish: false
+
+  slot-swap:
+    display-name: "SlotSwap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.slotswap.swap"]
+    punish: false
+
+  quick-turn:
+    display-name: "QuickTurn"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.vekquickturn.quickturn"]
+    punish: false
+
+  invmove:
+    display-name: "InvMove (move in GUI)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.invmove.modules", "keybind.invmove.toggleMove", "keycategory.invmove"]
+    punish: false
+
+  keep-inventory-open:
+    display-name: "KeepThatInventoryOpen"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "text.keepthatinventoryopen.settings"
+          - "options.keepthatinventoryopen.enabled"
+    punish: false
+
+  elytra-chestplate-swap:
+    display-name: "Elytra-Chestplate Swapper"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "key.ecs.swap"
+          - "key.elytraswapplus.swap"
+          - "elytrakey.chat.no_elytra"
+          - "key.category.minecraft.elytrakey"
+      - source: KEYBIND
+        keys:
+          - "Elytra-Chestplate Swapping"
+    punish: false
+
+  viafabricplus:
+    display-name: "ViaFabricPlus"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["base.viafabricplus.on", "base.viafabricplus.off"]
+      - source: CHANNEL
+        matches: ["^viafabricplus:"]
+    punish: false
+
+  better-hitreg:
+    display-name: "BetterHitreg"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.betterhitreg.hitreg"]
+    punish: false
+
+  reach-circle:
+    display-name: "Reach Circle"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.reach_circles.title"]
+    punish: false
+
+  trajectory-preview:
+    display-name: "Projectile Trajectory Preview"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["ptp.config.trajectory_color", "tje.config.gui.title"]
+
+  # ── New entries from AntiSpoof reference ──────────────────────────────
+    punish: false
+
+  dokko-hotbar-optimizer:
+    display-name: "Dokko's Hotbar Optimizer"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.dho.config.screen", "setting.dho.enabled"]
+    punish: false
+
+  tnthelper:
+    display-name: "TNTHelper"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["tnth.key.toggle"]
+    punish: false
+
+  worldedit-cui:
+    display-name: "WorldEdit CUI"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["cui.menu.toggle"]
+    punish: false
+
+  chest-tracker:
+    display-name: "Chest Tracker"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.chesttracker.open_gui"]
+    punish: false
+
+  easierchests:
+    display-name: "EasierChests"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.easierchests.sortchest"]
+    punish: false
+
+  inventory-control-tweaks:
+    display-name: "Inventory Control Tweaks"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.inventory_control_tweaks.drag_out_of_inventory_modifier"]
+    punish: false
+
+  shoulder-surfing:
+    display-name: "Shoulder Surfing Reloaded"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.shouldersurfing.free_look", "key.shouldersurfing.swap_shoulder"]
+    punish: false
+
+  uiutils:
+    display-name: "UIUtils"
+    category: SUSPICIOUS
+    signals:
+      - source: KEYBIND
+        keys:
+          - "Restore Screen"
+          - "Restore Screen ID: \"default\""
+    punish: false
+
+  world-preview:
+    display-name: "World Preview"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["world_preview.preview.title-full"]
+    punish: false
+
+  worldtools:
+    display-name: "WorldTools"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["worldtools.key.categories"]
+    punish: false
+
+  clientcommands:
+    display-name: "ClientCommands"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["commands.cplugins.found"]
+    punish: false
+
+  clientsort:
+    display-name: "ClientSort"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["clientsort.name"]
+    punish: false
+
+  commandkeys:
+    display-name: "CommandKeys"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.commandkeys.main"]
+    punish: false
+
+  in-game-account-switcher:
+    display-name: "In-Game Account Switcher"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["ias.title"]
+    punish: false
+
+  camera-tweaks:
+    display-name: "Camera Tweaks"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["category.cameratweaks.cameratweaks"]
+    punish: false
+
+  camera-enhancements:
+    display-name: "Camera Enhancements"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["camenh.config.title"]
+    punish: false
+
+  visible-barriers:
+    display-name: "VisibleBarriers"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["category.visiblebarriers"]
+    punish: false
+
+  seedfinder:
+    display-name: "SeedFinder"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["generator:seedfindermod:seed_finder_world"]
+    punish: true
+
+  playertracker:
+    display-name: "PlayerTracker"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.playertracker.option.enabled"]
+    punish: false
+
+  playerlocator:
+    display-name: "Player Locator"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["text.autoconfig.player-locator-plus.option.enabled"]
+    punish: false
+
+  language-translator:
+    display-name: "Language Translator (Mod)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["eplt.create.language.name"]
+    punish: false
+
+  quickhotkeys:
+    display-name: "QuickHotkeys"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.glitchifyed.quick_hotkeys.equip_totem"]
+    punish: false
+
+  inventory-tabs:
+    display-name: "InventoryTabs"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.inventory_tabs.key.next_tab"]
+    punish: false
+
+  vivecraft:
+    display-name: "Vivecraft"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["vivecraft.key.guiLeftClick"]
+    punish: false
+
+  autocart:
+    display-name: "Autocart"
+    category: SUSPICIOUS
+    signals:
+      - source: KEYBIND
+        keys: ["key.autocart.activate"]
+    punish: false
+
+  flashback:
+    display-name: "Flashback"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.category.flashback.keybind", "flashback.option.recording"]
+    punish: false
+
+  crash-assistant:
+    display-name: "Crash Assistant"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["warnings.codex_crash_assistant_comment", "commands.crash_command_done"]
+    punish: false
+
+  voyagermap:
+    display-name: "Voyagermap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["worldmap.title"]
+    punish: false
+
+  pixel-minimap:
+    display-name: "Pixel MINIMAP"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.minimap2.show_map"]
+    punish: false
+
+  maplink:
+    display-name: "Map Link"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["maplink.category.minimap"]
+    punish: false
+
+  voxelmap:
+    display-name: "VoxelMap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.minimap.voxelmapmenu"]
+    punish: false
+
+  xaeroplus:
+    display-name: "XaeroPlus (HUD tweaks)"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["xaeroplus.gui.on"]
+    punish: false
+
+  xaero-minimap-translate:
+    display-name: "Xaero's Minimap"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys:
+          - "gui.xaero_OK"
+          - "gui.xaero_on"
+          - "gui.xaero_off"
+          - "gui.xaero_minimap_settings"
+    punish: false
+
+  xaero-chest-tracker:
+    display-name: "Xaero Map Chest Tracker"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["xaeros-map-chest-tracker-integration.noMinimapFound.message"]
+    punish: false
+
+  trade-cycling:
+    display-name: "Trade Cycling"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.trade_cycling.cycle_trades"]
+    punish: false
+
+  health-indicators:
+    display-name: "Health Indicators"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.healthindicators.renderingEnabled"]
+    punish: true
+
+  replay-mod:
+    display-name: "Replay Mod"
+    category: SUSPICIOUS
+    signals:
+      - source: TRANSLATE
+        keys: ["key.record.desc"]
+    punish: false
+
+# Special detection traps.
+#
+# These do NOT probe for a specific mod. They catch anti-detection tooling
+# and cracked-client channel signatures. Because the false-positive risk
+# is real (locale quirks, offline clients, weird brand strings) they ship
+# WITHOUT punishments. Set `punish: true` only after you have observed
+# the alerts on your own player base.
+
+  # Vanilla trap: sends translation keys that a vanilla client always
+  # resolves (item.minecraft.bone -> "Bone", "Knochen", ...). If the
+  # response equals our fallback string, the client is running a
+  # translation-response interceptor typical of anti-detection cheats.
+  #
+  # Ship as ALERT-ONLY. Only set punish: true after you have watched
+  # the alerts and confirmed no legit clients false-flag.
+  vanilla-trap:
+    display-name: "Translation Interceptor"
+    category: CHEAT
+    signals:
+      - source: TRANSLATE
+        keys: ["item.minecraft.bone", "item.minecraft.diamond", "gameMode.survival",
+               "item.minecraft.stick", "item.minecraft.arrow", "block.minecraft.stone",
+               "block.minecraft.dirt", "entity.minecraft.zombie", "entity.minecraft.pig",
+               "gameMode.creative", "gameMode.spectator"]
+        required: true
+    punish: true
+
+  # Cracked / leaked-client channel signatures. Strong signals only:
+  # each pattern is a fully-anchored unique magic-string used by a
+  # specific cracked build. Ships with kick since a match is very high
+  # confidence.
+  cracked-clients:
+    display-name: "Cracked/Leaked Client"
+    category: CHEAT
+    signals:
+      - source: CHANNEL
+        matches:
+          - "^CPS_BAN_THIS"
+          - "^L0LIMAHCKER$"
+          - "^LOLIMAHCKER$"
+          - "^EROUAXWASHERE$"
+          - "^EARWAXWASHERE$"
+          - "^#unbanearwax$"
+          - "^194620356vv0$"
+          - "^mincraftpvphcker$"
+          - "^0SO1Lk2KASxzsd$"
+          - "^0SSxzsd$"
+          - "^CB\\|INIT$"
+          - "^CB-Binary$"
+          - "^CRYSTAL\\|"
+          - "^Parrot$"
+          - "^Skill$"
+          - "^PoisonHQ$"
+          - "^Synergy$"
+          - "^WDL\\|INIT$"
+          - "^wdl:init$"
+          - "^PERMISSIONSREPL$"
+    punish: false
+    punishments:
+      - "kick %player% &cUse of a disallowed client is forbidden. Detected: %punishable%"
+
+# UTILITY category mods.
+#
+# Category colour: grey. Legit quality-of-life or performance mods. Passive
+# detection only (BRAND / CHANNEL), no active sign probes for these, no
+# commands. Purely informational so admins know the client fleet.
+
+  sodium:
+    display-name: "Sodium"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^sodium:"]
+    punish: false
+
+  iris:
+    display-name: "Iris Shaders"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^iris:"]
+    punish: false
+
+  xaero-minimap:
+    display-name: "Xaero's Minimap"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^xaero(_|:)?minimap"]
+    punish: false
+
+  xaero-worldmap:
+    display-name: "Xaero's World Map"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^xaero(_|:)?worldmap"]
+    punish: false
+
+  replaymod:
+    display-name: "ReplayMod"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^replaymod:"]
+    punish: false
+
+  optifine:
+    display-name: "OptiFine"
+    category: UTILITY
+    signals:
+      - source: BRAND
+        matches: ["(?i)optifine"]
+    punish: false
+
+  fabric:
+    display-name: "Fabric Loader"
+    category: UTILITY
+    signals:
+      - source: BRAND
+        matches: ["(?i)^fabric"]
+    punish: false
+
+  forge:
+    display-name: "Forge Loader"
+    category: UTILITY
+    signals:
+      - source: BRAND
+        matches: ["(?i)^forge", "(?i)^neoforge", "^fml,"]
+    punish: false
+
+  distant-horizons:
+    display-name: "Distant Horizons"
+    category: UTILITY
+    signals:
+      - source: CHANNEL
+        matches: ["^distant_horizons:", "^ldi:"]
+    punish: false

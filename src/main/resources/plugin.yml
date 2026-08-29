@@ -1,0 +1,30 @@
+name: ErrorSMPModDetector
+version: '${project.version}'
+main: xyz.nim.modDetectorPlugin.ModDetectorPlugin
+api-version: '1.21'
+author: ErrorSMP
+description: ErrorSMP Mod Detector - channel-based + sign-probe mod/hack-client detection.
+# Legacy Bukkit plugin type deliberately, NOT paper-plugin.yml: Paper loads all
+# paper-plugin.yml plugins in an earlier phase than all plugin.yml (legacy Bukkit)
+# plugins, so a depend: on a legacy-Bukkit plugin (packetevents) from a Paper-type
+# plugin can never be satisfied no matter what the name says. This plugin uses no
+# Paper-only bootstrapper/loader classes, so staying legacy is safe.
+depend: [packetevents]
+
+commands:
+  moddetector:
+    description: ErrorSMP Mod Detector - status, manual checks, and reload.
+    aliases: [md]
+    usage: /moddetector <help|status|hacks|check|history|list|allow|disallow|reload>
+    permission: moddetector.admin
+
+permissions:
+  moddetector.admin:
+    description: Use /moddetector admin subcommands.
+    default: op
+  moddetector.alerts:
+    description: Receive alerts when a player is detected.
+    default: op
+  moddetector.bypass:
+    description: Exempt this player from all detection.
+    default: false

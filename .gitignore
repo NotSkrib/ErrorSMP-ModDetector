@@ -1,0 +1,7 @@
+target/
+decompiled/
+cfr.jar
+*.class
+.idea/
+*.iml
+.vscode/
